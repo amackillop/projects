@@ -1,8 +1,13 @@
 *.pyc
 *.xml
 *.iml
+*.json
+
 
 # Machine Translation
 /machine-translation/GloVe-1.2/
 /machine-translation/datasets/
-/machine-translation/processed
+/machine-translation/processed/
+/machine-translation/vocabs/
+machine-translation/Pipfile
+machine-translation/Pipfile.lock
