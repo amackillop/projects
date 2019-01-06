@@ -1,0 +1,8 @@
+*.pyc
+*.xml
+*.iml
+
+# Machine Translation
+/machine-translation/GloVe-1.2/
+/machine-translation/datasets/
+/machine-translation/processed

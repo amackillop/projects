@@ -20,7 +20,7 @@ def unpickle_data(fname):
 
 
 def take(n, iterable):
-    "Return first n items of the iterable as a list"
+    """Return first n items of the iterable as a list"""
     return list(it.islice(iterable, n))
 
 

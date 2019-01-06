@@ -6,6 +6,7 @@ import itertools as it
 import re
 import pickle
 
+
 import config
 import utils
 
@@ -30,9 +31,25 @@ def build_vocab(lines, result_queue):
     result_queue.put(vocab)
     return vocab
 
+def build_glove_vocab(vocab):
+    with open('GloVe-1.2/vocab.txt', 'w', encoding='utf-8') as output:
+        for key, value in sorted(vocab.items(), key=lambda x: x[1], reverse=True):
+            output.write(f'{key} {value}\n')
+
 
 def build_mapping(vocab, nwords):
     return {word: str(i) for i, (word, _) in enumerate(vocab.most_common(nwords))}
+
+
+def clean_corpus(corpus):
+    with open(corpus, 'r', encoding='iso-8859-1') as in_file:
+        fname, _, ext = corpus.rpartition('.')
+        with open(f'{fname}_clean.{ext}', 'w', encoding='iso-8859-1') as out_file:
+            chunks = utils.chunker(in_file, 10000, '')
+            for chunk in chunks:
+                tokenizer = Tokenizer(chunk)
+                for sent in tokenizer.yield_sentences():
+                    out_file.write(sent + '\n')
 
 
 class Tokenizer(collections.abc.Generator):
@@ -92,17 +109,6 @@ class Tokenizer(collections.abc.Generator):
                 return
 
 
-# def translate_to_int(fname, mapping):
-#     with open(fname, encoding = 'iso-8859-1') as source:
-#         with open('processed/' + fname.rpartition('/')[-1], 'w') as output:
-#             chunks = utils.chunker(source, 10000, '')
-#             for chunk in chunks:
-#                 tokenizer = Tokenizer(chunk)
-#                 sentences = (sent for sent in tokenizer.yield_sentences(mapping))
-#                 for sentence in sentences:
-#                     output.write(sentence + '\n')
-
-
 def main():
     """Build vocabularies if not present as a pickle file."""
     datasets = 'datasets/'
@@ -117,8 +123,9 @@ def main():
             for result in results:
                 vocab.update(result)
             utils.pickle_data(vocab, f'{vocabs}{source}.pickle')
-
+        build_glove_vocab(vocab)
+        break
 
 if __name__ == '__main__':
-    main()
+    # main()
     pass
