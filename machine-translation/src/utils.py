@@ -75,7 +75,6 @@ def parallelize(func, args_list, n_processes=None):
         processes.append(p)
 
     result = [result_queue.get() for p in processes]
-
     for i, p in enumerate(processes):
         p.join()
 
