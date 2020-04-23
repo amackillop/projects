@@ -5,7 +5,8 @@ import collections
 import itertools as it
 import re
 import pickle
-
+from typing import Callable
+from zipfile import ZipFile
 
 import config
 import utils
@@ -50,6 +51,18 @@ def clean_corpus(corpus):
                 tokenizer = Tokenizer(chunk)
                 for sent in tokenizer.yield_sentences():
                     out_file.write(sent + '\n')
+
+
+def unzip_data(datasets, predicate: Callable[[str], bool]):
+    zip_files = filter(predicate, os.listdir(datasets))
+    for zip_file in zip_files:
+        with ZipFile(f'{datasets}/{zip_file}', 'r') as zipped: 
+            print(zipped.namelist())
+            files = filter(predicate, zipped.namelist()) 
+            for fname in files:
+                print(fname)
+                if not os.path.exists(f'{datasets}/{fname}'):
+                    zipped.extract(fname, datasets) 
 
 
 class Tokenizer(collections.abc.Generator):
@@ -111,10 +124,12 @@ class Tokenizer(collections.abc.Generator):
 
 def main():
     """Build vocabularies if not present as a pickle file."""
-    datasets = 'datasets/'
-    vocabs = 'vocabs/'
-    source_files = [fname for fname in os.listdir(datasets)]
+    datasets = config.DATASETS
+    vocabs = config.VOCABS
+    unzip_data(datasets, lambda fname: fname.endswith('.en') or fname.endswith('.es'))
+    source_files = filter(lambda fname: not fname.endswith('.zip'), os.listdir(datasets))
     for source in source_files:
+        print(source)
         try:
             vocab = utils.unpickle_data(f'{vocabs}{source}.pickle')
         except FileNotFoundError:
@@ -122,10 +137,12 @@ def main():
             vocab = collections.Counter()
             for result in results:
                 vocab.update(result)
+            print(vocab)
             utils.pickle_data(vocab, f'{vocabs}{source}.pickle')
         build_glove_vocab(vocab)
         break
 
 if __name__ == '__main__':
+    print('starting')
     main()
     pass

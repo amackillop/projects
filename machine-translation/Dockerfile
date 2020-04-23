@@ -7,15 +7,11 @@ WORKDIR /install
 
 COPY requirements.txt /requirements.txt
 
-RUN pip install --install-option="--prefix=/install" -r /requirements.txt
+RUN pip install --prefix=/install -r /requirements.txt
 
 FROM base
 
 COPY --from=builder /install /usr/local
 COPY src /src
-COPY datasets /datasets
-COPY pickles /pickles
-COPY processed /processed
-WORKDIR /
 
 CMD ["python", "src/preprocessing.py"]

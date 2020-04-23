@@ -2,6 +2,9 @@ import itertools as it
 import pickle
 import math
 import multiprocessing as mp
+from typing import Callable, TypeVar, Iterable, Tuple
+
+T = TypeVar('T')
 
 
 def spagettify(iterable, strands):
@@ -29,6 +32,12 @@ def chunker(iterable, chunksize, fillvalue=None):
     args = [iter(iterable)] * chunksize
     return it.zip_longest(*args, fillvalue=fillvalue)
 
+def partition(
+    predicate: Callable[[T], bool], iterable: Iterable[T]
+) -> Tuple[Iterable[T], Iterable[T]]:
+    """Use a predicate to partition entries into false entries and true entries"""
+    t1, t2 = it.tee(iterable)
+    return filter(predicate, t1), it.filterfalse(predicate, t2)
 
 def parallelize(func, args_list, n_processes=None):
     """Parallelize a function call across multiple processes.
